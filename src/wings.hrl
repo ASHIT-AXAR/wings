@@ -254,10 +254,23 @@
 	 yon					%Far clipping plane.
 	}).
 
+%% This record holds a copy of the geometry and selection corresponding
+%% to the display lists in the #dlo{} record.
+
+-record(dlo_src,
+        {
+         we :: #we{},
+         ns    = 'none' :: wings_draw:normals(),
+         sel   = 'none'  :: 'none' | {wings_sel:mode(),wings_sel:item_set()},
+         %% Was sel = []     :: [wings_sel:item_id()],
+         split = 'none' :: 'none' | wings_draw:split()
+        }).
+
 %% Display lists per object.
 %%  Important: Plain integers and integers in lists will be assumed to
 %%  be display lists. Arbitrary integers must be stored inside a tuple
 %%  or record to not be interpreted as a display list.
+
 -record(dlo,
         {work=none :: wings_dl:dl(),            %Workmode faces.
          smooth=none :: wings_dl:smooth(),      %Smooth-shaded faces.
@@ -276,7 +289,6 @@
            'none' | {wings_sel:mode(),wings_dl:dl()},  %Hilite display list.
          mirror=none ::
            'none' | e3d_mat:matrix(),           %Virtual mirror data.
-         ns=none :: wings_draw:normals(),       %Normals/positions per face.
 	 plugins=[],                            %Draw lists for plugins.
 
          %% Proxy stuff.
@@ -285,11 +297,8 @@
            'none' | wings_proxy:sp(),           %Data for smooth proxy.
 
 	 %% Source for display lists.
-         src_we=none :: 'none' | #we{},         %Source object.
-         src_sel=none :: 'none' |
-                         {wings_sel:mode(),wings_sel:item_set()}, %Source selection.
-         split=none ::
-           'none' | wings_draw:split(),         %Split data.
+         src = none :: 'none' | #dlo_src{},     %To be moved outside
+
          drag=none :: 'none'
                     | wings_drag:drag()
                     | wings_tweak:drag()
@@ -344,17 +353,6 @@
          we :: #we{},
          sel = gb_sets:empty() :: gb_sets:set(wings_sel:item_id()),
          saved_mode = none :: 'none' | wings_sel:mode()        %Only valid when invisible.
-        }).
-
-%% This record holds a copy of the geometry and selection corresponding
-%% to the display lists in the #dlo{} record.
-
--record(dlo_src,
-        {
-         we :: #we{},
-         ns    = 'none' :: wings_draw:normals(),
-         sel   = []     :: [wings_sel:item_id()],
-         split = 'none' :: 'none' | wings_draw:split()
         }).
 
 %% This record is the state data for the processes holding the #we{} records.
