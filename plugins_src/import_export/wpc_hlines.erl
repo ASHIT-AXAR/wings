@@ -125,7 +125,7 @@ command(_, _) -> next.
 export(Arg, Op, _) when is_atom(Arg) ->
     wpa:dialog(Arg, ?__(1,"Cartoon edges Render Options (EPS/SVG)"), dialog(),
 	       fun(Res) -> {file, {Op, {eps, Res}}} end);
-export(Arg, Op, St0) when is_list(Arg) ->
+export(Arg, Op, St) when is_list(Arg) ->
     set_pref(Arg),
     Camera_info = wpa:camera_info([aim, distance_to_aim,
 				   azimuth, elevation, tracking,
@@ -139,15 +139,9 @@ export(Arg, Op, St0) when is_list(Arg) ->
 	     {win_size, wings_wm:win_size()},
 	     {ortho_view, wings_wm:get_prop(orthogonal_view)}],
 
-    %% Freeze virtual mirrors.
-    Shapes0 = gb_trees:to_list(St0#st.shapes),
-    Shapes = [{Id, wpa:vm_freeze(We)} || {Id, We} <- Shapes0],
-    St = St0#st{shapes = gb_trees:from_orddict(Shapes)},
-
     case Op of
         export ->
-            ?SLOW(wpa:export(Props, fun_export(Props), St))
-		;
+            ?SLOW(wpa:export(Props, fun_export(Props), St));
         export_selected ->
             ?SLOW(wpa:export_selected(Props, fun_export(Props), St))
     end.
